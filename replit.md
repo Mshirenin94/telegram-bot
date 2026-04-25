@@ -23,5 +23,14 @@ pnpm workspace monorepo using TypeScript. Each package manages its own dependenc
 - `pnpm --filter @workspace/api-spec run codegen` — regenerate API hooks and Zod schemas from OpenAPI spec
 - `pnpm --filter @workspace/db run push` — push DB schema changes (dev only)
 - `pnpm --filter @workspace/api-server run dev` — run API server locally
+- `python bot/bot.py` — run the Telegram travel bot (workflow: "Telegram Bot")
+
+## Telegram Bot
+
+- Location: `bot/`
+- Files: `bot.py`, `itinerary_mvp.json`, `places_enriched_v1.csv`
+- Library: `python-telegram-bot==22.5` (Python 3.12)
+- Secret: `TELEGRAM_BOT_TOKEN`
+- Features: `/start`, "Сегодня", "Выбрать дату", "Весь маршрут", "Полезные ссылки"
 
 See the `pnpm-workspace` skill for workspace structure, TypeScript setup, and package details.
