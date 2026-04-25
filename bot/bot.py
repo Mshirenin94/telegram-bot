@@ -26,6 +26,42 @@ if os.path.exists(USER_NOTES_PATH):
 else:
     USER_NOTES = {}
 
+EXPENSES_PATH = os.path.join(BASE_DIR, 'expenses.json')
+if os.path.exists(EXPENSES_PATH):
+    EXPENSES = json.load(open(EXPENSES_PATH, encoding='utf-8'))
+else:
+    EXPENSES = {}
+
+CITY_COORDS = {
+    'Пекин': (39.9042, 116.4074, 'Asia/Shanghai'),
+    'Сеул': (37.5665, 126.9780, 'Asia/Seoul'),
+}
+
+WEATHER_CODES = {
+    0: 'Ясно', 1: 'В основном ясно', 2: 'Переменная облачность', 3: 'Облачно',
+    45: 'Туман', 48: 'Туман с инеем',
+    51: 'Морось слабая', 53: 'Морось', 55: 'Сильная морось',
+    61: 'Дождь слабый', 63: 'Дождь', 65: 'Сильный дождь',
+    71: 'Снег слабый', 73: 'Снег', 75: 'Сильный снег',
+    80: 'Ливни слабые', 81: 'Ливни', 82: 'Сильные ливни',
+    95: 'Гроза', 96: 'Гроза с градом', 99: 'Сильная гроза с градом',
+}
+
+EXCHANGE_TO_RUB = {
+    'CNY': 11.5,
+    'KRW': 0.063,
+    'USD': 83.0,
+    'RUB': 1.0,
+}
+EXCHANGE_LOCKED_AT = '25 апреля 2026'
+CURRENCY_SYMBOLS = {'CNY': '¥', 'KRW': '₩', 'USD': '$', 'RUB': '₽'}
+CURRENCY_ALIASES = [
+    (re.compile(r'(?i)\bюан\w*|\bcny\b|¥'), 'CNY'),
+    (re.compile(r'(?i)\bвон\w*|\bkrw\b|₩'), 'KRW'),
+    (re.compile(r'(?i)\bдоллар\w*|\busd\b|\$'), 'USD'),
+    (re.compile(r'(?i)\bрубл\w*|\bруб\w*|\bр\b'), 'RUB'),
+]
+
 MONTH_RU = {'05-01':'1 мая','05-02':'2 мая','05-03':'3 мая','05-04':'4 мая','05-05':'5 мая','05-06':'6 мая','05-07':'7 мая','05-08':'8 мая','05-09':'9 мая','05-10':'10 мая','05-11':'11 мая','05-12':'12 мая'}
 
 
@@ -279,6 +315,127 @@ def save_notes():
         json.dump(USER_NOTES, f, ensure_ascii=False, indent=2)
 
 
+def save_expenses():
+    with open(EXPENSES_PATH, 'w', encoding='utf-8') as f:
+        json.dump(EXPENSES, f, ensure_ascii=False, indent=2)
+
+
+def detect_currency(text):
+    for rx, code in CURRENCY_ALIASES:
+        if rx.search(text):
+            return code
+    return None
+
+
+def parse_expense(text):
+    m = re.match(r'^\s*(\d+(?:[.,]\d+)?)\s+(.+)$', text)
+    if not m:
+        return None
+    amount = float(m.group(1).replace(',', '.'))
+    rest = m.group(2).strip()
+    cur = detect_currency(rest)
+    if not cur:
+        return None
+    comment = rest
+    for rx, _ in CURRENCY_ALIASES:
+        comment = rx.sub('', comment)
+    comment = re.sub(r'\s+', ' ', comment).strip(' .,;:-')
+    return amount, cur, comment
+
+
+def normalize_city(city):
+    return 'Сеул' if 'Сеул' in city else 'Пекин'
+
+
+def add_expense(day_num, amount, currency, comment):
+    rub = round(amount * EXCHANGE_TO_RUB.get(currency, 1.0), 2)
+    item = {'amount': amount, 'currency': currency, 'rub': rub, 'comment': comment}
+    EXPENSES.setdefault(str(day_num), []).append(item)
+    save_expenses()
+    return rub
+
+
+def expenses_summary_text():
+    lines = [
+        '<b>Расходы по дням</b>',
+        f'<i>Курс зафиксирован {EXCHANGE_LOCKED_AT}: 1 ¥ = {EXCHANGE_TO_RUB["CNY"]} ₽, 1 ₩ = {EXCHANGE_TO_RUB["KRW"]} ₽, 1 $ = {EXCHANGE_TO_RUB["USD"]} ₽</i>',
+        ''
+    ]
+    city_total = 0.0
+    grand = 0.0
+    prev_city = None
+    for d in ITINERARY['days']:
+        cur_city = normalize_city(d['city'])
+        if prev_city is not None and cur_city != prev_city:
+            lines.append(f'<b>Итого по городу {prev_city}: {city_total:.0f} ₽</b>')
+            lines.append('')
+            city_total = 0.0
+        items = EXPENSES.get(str(d['day']), [])
+        if items:
+            day_sum = sum(it['rub'] for it in items)
+            lines.append(f'<b>{MONTH_RU.get(d["date"][5:], d["date"])} (день {d["day"]}, {d["city"]}) — {day_sum:.0f} ₽</b>')
+            for it in items:
+                sym = CURRENCY_SYMBOLS.get(it['currency'], it['currency'])
+                tail = f' — {it["comment"]}' if it.get('comment') else ''
+                lines.append(f'• {it["amount"]:g} {sym}{tail}  ({it["rub"]:.0f} ₽)')
+            city_total += day_sum
+            grand += day_sum
+        prev_city = cur_city
+    if prev_city is not None:
+        lines.append(f'<b>Итого по городу {prev_city}: {city_total:.0f} ₽</b>')
+    lines.append('')
+    if grand > 0:
+        lines.append(f'<b>Всего за поездку: {grand:.0f} ₽</b>')
+    else:
+        lines.append('Пока ничего не добавлено. Открой «Добавить расход» и напиши, например: 200 юаней ужин')
+    return '\n'.join(lines)
+
+
+async def fetch_weather_async(lat, lon, tz, date):
+    import asyncio
+    url = (
+        f'https://api.open-meteo.com/v1/forecast?latitude={lat}&longitude={lon}'
+        f'&daily=temperature_2m_max,temperature_2m_min,precipitation_sum,weathercode'
+        f'&timezone={tz}&start_date={date}&end_date={date}'
+    )
+    def _get():
+        with urllib.request.urlopen(url, timeout=8) as r:
+            return json.loads(r.read())
+    return await asyncio.to_thread(_get)
+
+
+async def weather_text(day_obj):
+    from datetime import datetime
+    cities = [c.strip() for c in day_obj['city'].split('/')]
+    blocks = [f'<b>🌤 Погода — {MONTH_RU.get(day_obj["date"][5:], day_obj["date"])}</b>']
+    for city in cities:
+        coords = CITY_COORDS.get(city)
+        if not coords:
+            continue
+        lat, lon, tz = coords
+        try:
+            data = await fetch_weather_async(lat, lon, tz, day_obj['date'])
+            d = data.get('daily', {})
+            tmax = d.get('temperature_2m_max', [None])
+            tmin = d.get('temperature_2m_min', [None])
+            prcp = d.get('precipitation_sum', [None])
+            wc = d.get('weathercode', [None])
+            if not tmax or tmax[0] is None:
+                blocks.append(f'\n<b>{city}:</b> прогноз пока недоступен (дата за пределами 16-дневного окна).')
+            else:
+                desc = WEATHER_CODES.get(wc[0], '—')
+                blocks.append(
+                    f'\n<b>{city}:</b> {desc}\n'
+                    f'• Температура: {tmin[0]:.0f}°…{tmax[0]:.0f}°\n'
+                    f'• Осадки: {prcp[0]:.1f} мм'
+                )
+        except Exception:
+            blocks.append(f'\n<b>{city}:</b> не удалось получить прогноз.')
+    now = datetime.now(_city_tz(day_obj['city'])).strftime('%H:%M')
+    blocks.append(f'\n<i>Обновлено в {now}. Прогноз обновляется при каждом запросе.</i>')
+    return '\n'.join(blocks)
+
+
 def _city_tz(city):
     from zoneinfo import ZoneInfo
     return ZoneInfo('Asia/Seoul') if 'Сеул' in city else ZoneInfo('Asia/Shanghai')
@@ -326,6 +483,15 @@ def main_menu():
         [InlineKeyboardButton('🗓 Выбрать дату', callback_data='pick_date')],
         [InlineKeyboardButton('🧭 Весь маршрут', callback_data='whole_route')],
         [InlineKeyboardButton('📝 Добавить в маршрут', callback_data='add_help')],
+        [InlineKeyboardButton('💰 Расходы', callback_data='expenses_menu')],
+    ])
+
+
+def expenses_menu():
+    return InlineKeyboardMarkup([
+        [InlineKeyboardButton('➕ Добавить расход', callback_data='exp:add')],
+        [InlineKeyboardButton('📊 Сколько потратили', callback_data='exp:show')],
+        [InlineKeyboardButton('🏠 В меню', callback_data='home')],
     ])
 
 
@@ -361,6 +527,7 @@ def detail_menu(day_num):
         [InlineKeyboardButton('🍜 Еда', callback_data=f'section:foodmenu:{day_num}')],
         [InlineKeyboardButton('🏯 Что посещаем', callback_data=f'section:visitmenu:{day_num}')],
         [InlineKeyboardButton('⚠️ Что важно', callback_data=f'section:important:{day_num}')],
+        [InlineKeyboardButton('🌤 Погода', callback_data=f'section:weather:{day_num}')],
         [InlineKeyboardButton('⬅️ К выбору формата', callback_data=f'date:{day_num}')],
         [InlineKeyboardButton('🏠 В меню', callback_data='home')],
     ])
@@ -518,6 +685,17 @@ async def on_button(update: Update, context: ContextTypes.DEFAULT_TYPE):
     elif data=='pick_date': await q.edit_message_text('Выбери дату:', reply_markup=dates_menu())
     elif data=='whole_route': await q.edit_message_text('Весь маршрут:', reply_markup=info_choice_menu('route'))
     elif data=='add_help': await q.edit_message_text('Напиши сообщением, например: «добавь 7 мая посещение магазина с пряжей».', reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton('🏠 В меню', callback_data='home')]]))
+    elif data=='expenses_menu': await q.edit_message_text('Раздел расходов:', reply_markup=expenses_menu())
+    elif data=='exp:add':
+        await q.edit_message_text(
+            'Напиши расход в формате «<сумма> <валюта> <комментарий>».\n\n'
+            'Примеры:\n• 200 юаней ужин\n• 5000 вон такси\n• 20 долларов кофе\n• 1500 рублей сувениры\n\n'
+            f'Курс зафиксирован {EXCHANGE_LOCKED_AT}: 1 ¥ = {EXCHANGE_TO_RUB["CNY"]} ₽, 1 ₩ = {EXCHANGE_TO_RUB["KRW"]} ₽, 1 $ = {EXCHANGE_TO_RUB["USD"]} ₽\n\n'
+            'Расход уйдёт в текущий день поездки.',
+            reply_markup=expenses_menu()
+        )
+    elif data=='exp:show':
+        await q.edit_message_text(expenses_summary_text(), parse_mode=ParseMode.HTML, reply_markup=expenses_menu())
     elif data=='today:short': await q.edit_message_text(short_day_text(find_day(today_day())), reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton('📚 Подробная информация', callback_data=f'dayfull:{today_day()}')],[InlineKeyboardButton('🏠 В меню', callback_data='home')]]))
     elif data=='today:full': await q.edit_message_text('Подробная информация на сегодня. Выбери раздел ниже.', reply_markup=detail_menu(today_day()))
     elif data=='tomorrow:short': await q.edit_message_text(short_day_text(find_day(tomorrow_day())), reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton('📚 Подробная информация', callback_data=f'dayfull:{tomorrow_day()}')],[InlineKeyboardButton('🏠 В меню', callback_data='home')]]))
@@ -544,6 +722,12 @@ async def on_button(update: Update, context: ContextTypes.DEFAULT_TYPE):
         elif section=='foodmenu': await q.edit_message_text('Выбери место по еде:', reply_markup=food_menu(day_num))
         elif section=='visitmenu': await q.edit_message_text('Выбери место:', reply_markup=visit_menu(d))
         elif section=='important': await q.edit_message_text(important_text(d), parse_mode=ParseMode.HTML, reply_markup=detail_menu(day_num))
+        elif section=='weather':
+            try:
+                text = await weather_text(d)
+                await q.edit_message_text(text, parse_mode=ParseMode.HTML, reply_markup=detail_menu(day_num))
+            except Exception:
+                pass
     elif data.startswith('foodall:'):
         day_num=data.split(':',1)[1]
         await q.edit_message_text(food_all_text(find_day(day_num)), parse_mode=ParseMode.HTML, disable_web_page_preview=False, reply_markup=food_menu(day_num))
@@ -562,6 +746,18 @@ async def on_button(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 async def parse_add_request(update: Update, context: ContextTypes.DEFAULT_TYPE):
     text=(update.message.text or '').strip()
+    parsed = parse_expense(text)
+    if parsed:
+        amount, cur, comment = parsed
+        day_num = today_day()
+        rub = add_expense(day_num, amount, cur, comment)
+        sym = CURRENCY_SYMBOLS.get(cur, cur)
+        cmt = f' — {comment}' if comment else ''
+        await update.message.reply_text(
+            f'Добавил расход в день {day_num}: {amount:g} {sym}{cmt}\n= {rub:.0f} ₽',
+            reply_markup=expenses_menu()
+        )
+        return
     m=re.match(r'(?i)^добав[ьй]\s+(\d{1,2})\s+мая\s+(.+)$', text)
     if not m: return
     day_num, content = m.group(1), m.group(2).strip()
