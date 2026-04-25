@@ -1,24 +1,24 @@
 city,day,name_en,name_local,address,map_provider,booking_link_needed,status,search_query,map_link,place_link,booking_link,notes
-Beijing,1,The Yard Hotel Beijing,The Yard Hotel Beijing,"Xianyukou Street, Dongcheng District (鲜鱼口街, 东城区)",Amap,no,query_ready,"The Yard Hotel Beijing Xianyukou Street, Dongcheng District (鲜鱼口街, 东城区)",,,,Use Chinese address in Amap for best results. Priority for exact verification.
-Beijing,1,Xianyukou Street food area,鲜鱼口街,鲜鱼口街,Amap,no,query_ready,鲜鱼口街 鲜鱼口街,,,,
-Beijing,1,Bianyifang,便宜坊,No. 65-77 Xianyukou Street,Amap,no,query_ready,便宜坊 No. 65-77 Xianyukou Street,,,,
-Beijing,2,Forbidden City,故宫博物院,"Meridian Gate entrance, Beijing",Amap,yes,query_ready,"故宫博物院 Meridian Gate entrance, Beijing",,,https://www.palace-museum.cn/,Official Palace Museum site is the primary booking source. Priority for exact verification.
-Beijing,2,Jingshan Park,景山公园,Behind the north gate of the Forbidden City,Amap,no,query_ready,景山公园 Behind the north gate of the Forbidden City,,,,
-Beijing,2,Nanluoguxiang,南锣鼓巷,"Nanluoguxiang, Dongcheng District",Amap,no,query_ready,"南锣鼓巷 Nanluoguxiang, Dongcheng District",,,,
-Beijing,2,Metal Hands Coffee,Metal Hands Coffee,Nanluoguxiang area,Amap,no,query_ready,Metal Hands Coffee Nanluoguxiang area,,,,
-Beijing,2,Barista Coffee Roasters,Barista Coffee Roasters,47 Wudaoying Hutong,Amap,no,query_ready,Barista Coffee Roasters 47 Wudaoying Hutong,,,,
-Beijing,2,Shichahai,什刹海,Houhai / Qianhai lakes area,Amap,no,query_ready,什刹海 Houhai / Qianhai lakes area,,,,
-Beijing,2,Siji Minfu,四季民福,No. 11 Nanchizi Street (南池子大街11号),Amap,yes,query_ready,四季民福 No. 11 Nanchizi Street (南池子大街11号),,,,Needs WeChat / Trip.com / concierge booking verification. Priority for exact verification.
-Beijing,3,Dongzhimen Bus Station,东直门公交枢纽,"Dongzhimen, Beijing",Amap,no,query_ready,"东直门公交枢纽 Dongzhimen, Beijing",,,,
-Beijing,3,Mutianyu Great Wall,慕田峪长城,"Mutianyu section, Huairou District",Amap,no,query_ready,"慕田峪长城 Mutianyu section, Huairou District",,,,Priority for exact verification.
-Beijing,4,Temple of Heaven,天坛,"Tiantan area, Beijing",Amap,no,query_ready,"天坛 Tiantan area, Beijing",,,,Priority for exact verification.
-Beijing,4,798 Art Zone,798 艺术区,"798 Art District, Beijing",Amap,no,query_ready,"798 艺术区 798 Art District, Beijing",,,,Priority for exact verification.
-Beijing,4,UCCA Center for Contemporary Art,UCCA尤伦斯当代艺术中心,798 Art Zone,Amap,no,query_ready,UCCA尤伦斯当代艺术中心 798 Art Zone,,,,
-Beijing,4,Voyage Coffee 798,Voyage Coffee,798 Art Zone,Amap,no,query_ready,Voyage Coffee 798 Art Zone,,,,
-Beijing,4,Wangfujing Dajie,王府井大街,"Wangfujing, Beijing",Amap,no,query_ready,"王府井大街 Wangfujing, Beijing",,,,
-Beijing,4,Haidilao Wangfujing APM,海底捞,"Wangfujing APM, 5F",Amap,no,query_ready,"海底捞 Wangfujing APM, 5F",,,,
-Beijing,4,Da Dong,大董,"Floor 6, 301 Wangfujing",Amap,yes,query_ready,"大董 Floor 6, 301 Wangfujing",,,,
-Beijing,5,Beijing Daxing Airport,北京大兴国际机场,PKX Daxing,Amap,no,query_ready,北京大兴国际机场 PKX Daxing,,,,Priority for exact verification.
+Beijing,1,The Yard Hotel Beijing,The Yard Hotel Beijing,"Xianyukou Street, Dongcheng District (鲜鱼口街, 东城区)",Amap,no,query_ready,"The Yard Hotel Beijing Xianyukou Street, Dongcheng District (鲜鱼口街, 东城区)",https://uri.amap.com/search?keyword=The%20Yard%20Hotel%20Beijing%20Xianyukou%20Street%2C%20Dongcheng%20District%20%28%E9%B2%9C%E9%B1%BC%E5%8F%A3%E8%A1%97%2C%20%E4%B8%9C%E5%9F%8E%E5%8C%BA%29,,,Use Chinese address in Amap for best results. Priority for exact verification.
+Beijing,1,Xianyukou Street food area,鲜鱼口街,鲜鱼口街,Amap,no,query_ready,鲜鱼口街 鲜鱼口街,https://uri.amap.com/search?keyword=%E9%B2%9C%E9%B1%BC%E5%8F%A3%E8%A1%97%20%E9%B2%9C%E9%B1%BC%E5%8F%A3%E8%A1%97,,,
+Beijing,1,Bianyifang,便宜坊,No. 65-77 Xianyukou Street,Amap,no,query_ready,便宜坊 No. 65-77 Xianyukou Street,https://uri.amap.com/search?keyword=%E4%BE%BF%E5%AE%9C%E5%9D%8A%20No.%2065-77%20Xianyukou%20Street,,,
+Beijing,2,Forbidden City,故宫博物院,"Meridian Gate entrance, Beijing",Amap,yes,query_ready,"故宫博物院 Meridian Gate entrance, Beijing",https://uri.amap.com/search?keyword=%E6%95%85%E5%AE%AB%E5%8D%9A%E7%89%A9%E9%99%A2%20Meridian%20Gate%20entrance%2C%20Beijing,,https://www.palace-museum.cn/,Official Palace Museum site is the primary booking source. Priority for exact verification.
+Beijing,2,Jingshan Park,景山公园,Behind the north gate of the Forbidden City,Amap,no,query_ready,景山公园 Behind the north gate of the Forbidden City,https://uri.amap.com/search?keyword=%E6%99%AF%E5%B1%B1%E5%85%AC%E5%9B%AD%20Behind%20the%20north%20gate%20of%20the%20Forbidden%20City,,,
+Beijing,2,Nanluoguxiang,南锣鼓巷,"Nanluoguxiang, Dongcheng District",Amap,no,query_ready,"南锣鼓巷 Nanluoguxiang, Dongcheng District",https://uri.amap.com/search?keyword=%E5%8D%97%E9%94%A3%E9%BC%93%E5%B7%B7%20Nanluoguxiang%2C%20Dongcheng%20District,,,
+Beijing,2,Metal Hands Coffee,Metal Hands Coffee,Nanluoguxiang area,Amap,no,query_ready,Metal Hands Coffee Nanluoguxiang area,https://uri.amap.com/search?keyword=Metal%20Hands%20Coffee%20Nanluoguxiang%20area,,,
+Beijing,2,Barista Coffee Roasters,Barista Coffee Roasters,47 Wudaoying Hutong,Amap,no,query_ready,Barista Coffee Roasters 47 Wudaoying Hutong,https://uri.amap.com/search?keyword=Barista%20Coffee%20Roasters%2047%20Wudaoying%20Hutong,,,
+Beijing,2,Shichahai,什刹海,Houhai / Qianhai lakes area,Amap,no,query_ready,什刹海 Houhai / Qianhai lakes area,https://uri.amap.com/search?keyword=%E4%BB%80%E5%88%B9%E6%B5%B7%20Houhai%20/%20Qianhai%20lakes%20area,,,
+Beijing,2,Siji Minfu,四季民福,No. 11 Nanchizi Street (南池子大街11号),Amap,yes,query_ready,四季民福 No. 11 Nanchizi Street (南池子大街11号),https://uri.amap.com/search?keyword=%E5%9B%9B%E5%AD%A3%E6%B0%91%E7%A6%8F%20No.%2011%20Nanchizi%20Street%20%28%E5%8D%97%E6%B1%A0%E5%AD%90%E5%A4%A7%E8%A1%9711%E5%8F%B7%29,,,Needs WeChat / Trip.com / concierge booking verification. Priority for exact verification.
+Beijing,3,Dongzhimen Bus Station,东直门公交枢纽,"Dongzhimen, Beijing",Amap,no,query_ready,"东直门公交枢纽 Dongzhimen, Beijing",https://uri.amap.com/search?keyword=%E4%B8%9C%E7%9B%B4%E9%97%A8%E5%85%AC%E4%BA%A4%E6%9E%A2%E7%BA%BD%20Dongzhimen%2C%20Beijing,,,
+Beijing,3,Mutianyu Great Wall,慕田峪长城,"Mutianyu section, Huairou District",Amap,no,query_ready,"慕田峪长城 Mutianyu section, Huairou District",https://uri.amap.com/search?keyword=%E6%85%95%E7%94%B0%E5%B3%AA%E9%95%BF%E5%9F%8E%20Mutianyu%20section%2C%20Huairou%20District,,,Priority for exact verification.
+Beijing,4,Temple of Heaven,天坛,"Tiantan area, Beijing",Amap,no,query_ready,"天坛 Tiantan area, Beijing",https://uri.amap.com/search?keyword=%E5%A4%A9%E5%9D%9B%20Tiantan%20area%2C%20Beijing,,,Priority for exact verification.
+Beijing,4,798 Art Zone,798 艺术区,"798 Art District, Beijing",Amap,no,query_ready,"798 艺术区 798 Art District, Beijing",https://uri.amap.com/search?keyword=798%20%E8%89%BA%E6%9C%AF%E5%8C%BA%20798%20Art%20District%2C%20Beijing,,,Priority for exact verification.
+Beijing,4,UCCA Center for Contemporary Art,UCCA尤伦斯当代艺术中心,798 Art Zone,Amap,no,query_ready,UCCA尤伦斯当代艺术中心 798 Art Zone,https://uri.amap.com/search?keyword=UCCA%E5%B0%A4%E4%BC%A6%E6%96%AF%E5%BD%93%E4%BB%A3%E8%89%BA%E6%9C%AF%E4%B8%AD%E5%BF%83%20798%20Art%20Zone,,,
+Beijing,4,Voyage Coffee 798,Voyage Coffee,798 Art Zone,Amap,no,query_ready,Voyage Coffee 798 Art Zone,https://uri.amap.com/search?keyword=Voyage%20Coffee%20798%20Art%20Zone,,,
+Beijing,4,Wangfujing Dajie,王府井大街,"Wangfujing, Beijing",Amap,no,query_ready,"王府井大街 Wangfujing, Beijing",https://uri.amap.com/search?keyword=%E7%8E%8B%E5%BA%9C%E4%BA%95%E5%A4%A7%E8%A1%97%20Wangfujing%2C%20Beijing,,,
+Beijing,4,Haidilao Wangfujing APM,海底捞,"Wangfujing APM, 5F",Amap,no,query_ready,"海底捞 Wangfujing APM, 5F",https://uri.amap.com/search?keyword=%E6%B5%B7%E5%BA%95%E6%8D%9E%20Wangfujing%20APM%2C%205F,,,
+Beijing,4,Da Dong,大董,"Floor 6, 301 Wangfujing",Amap,yes,query_ready,"大董 Floor 6, 301 Wangfujing",https://uri.amap.com/search?keyword=%E5%A4%A7%E8%91%A3%20Floor%206%2C%20301%20Wangfujing,,,
+Beijing,5,Beijing Daxing Airport,北京大兴国际机场,PKX Daxing,Amap,no,query_ready,北京大兴国际机场 PKX Daxing,https://uri.amap.com/search?keyword=%E5%8C%97%E4%BA%AC%E5%A4%A7%E5%85%B4%E5%9B%BD%E9%99%85%E6%9C%BA%E5%9C%BA%20PKX%20Daxing,,,Priority for exact verification.
 Seoul,5,Incheon International Airport,인천국제공항,ICN,KakaoMap,no,search_link_ready,인천국제공항 ICN,http://m.map.kakao.com/scheme/search?q=%EC%9D%B8%EC%B2%9C%EA%B5%AD%EC%A0%9C%EA%B3%B5%ED%95%AD%20ICN,,,Priority for exact verification.
 Seoul,5,Seoul Station,서울역,Seoul,KakaoMap,no,search_link_ready,서울역 Seoul,http://m.map.kakao.com/scheme/search?q=%EC%84%9C%EC%9A%B8%EC%97%AD%20Seoul,,,Priority for exact verification.
 Seoul,5,Jongno 5-ga Station,종로5가역,Seoul Metro Line 1,KakaoMap,no,search_link_ready,종로5가역 Seoul Metro Line 1,http://m.map.kakao.com/scheme/search?q=%EC%A2%85%EB%A1%9C5%EA%B0%80%EC%97%AD%20Seoul%20Metro%20Line%201,,,Priority for exact verification.

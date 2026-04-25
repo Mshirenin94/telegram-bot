@@ -32,14 +32,26 @@ MONTH_RU = {'05-01':'1 мая','05-02':'2 мая','05-03':'3 мая','05-04':'4 
 
 RU_SOURCES = {
     "Forbidden City": ["https://ru.wikipedia.org/wiki/%D0%97%D0%B0%D0%BF%D1%80%D0%B5%D1%82%D0%BD%D1%8B%D0%B9_%D0%B3%D0%BE%D1%80%D0%BE%D0%B4"],
+    "Jingshan Park": ["https://ru.wikipedia.org/wiki/%D0%A6%D0%B7%D0%B8%D0%BD%D1%88%D0%B0%D0%BD%D1%8C_(%D0%BF%D0%B0%D1%80%D0%BA)"],
+    "Nanluoguxiang": ["https://ru.wikipedia.org/wiki/%D0%A5%D1%83%D1%82%D1%83%D0%BD"],
+    "Shichahai": ["https://ru.wikipedia.org/wiki/%D0%A5%D1%83%D1%82%D1%83%D0%BD"],
     "Temple of Heaven": ["https://ru.wikipedia.org/wiki/%D0%A5%D1%80%D0%B0%D0%BC_%D0%9D%D0%B5%D0%B1%D0%B0"],
     "Mutianyu Great Wall": ["https://ru.wikipedia.org/wiki/%D0%92%D0%B5%D0%BB%D0%B8%D0%BA%D0%B0%D1%8F_%D0%9A%D0%B8%D1%82%D0%B0%D0%B9%D1%81%D0%BA%D0%B0%D1%8F_%D1%81%D1%82%D0%B5%D0%BD%D0%B0"],
+    "798 Art Zone": ["https://ru.wikipedia.org/wiki/798_(%D1%80%D0%B0%D0%B9%D0%BE%D0%BD_%D0%B8%D1%81%D0%BA%D1%83%D1%81%D1%81%D1%82%D0%B2)"],
+    "Wangfujing": ["https://ru.wikipedia.org/wiki/%D0%92%D0%B0%D0%BD%D1%84%D1%83%D1%86%D0%B7%D0%B8%D0%BD"],
+    "Changgyeonggung": ["https://ru.wikipedia.org/wiki/%D0%A7%D1%85%D0%B0%D0%BD%D0%B3%D1%91%D0%BD%D0%B3%D1%83%D0%BD"],
     "Gyeongbokgung": ["https://ru.wikipedia.org/wiki/%D0%9A%D1%91%D0%BD%D0%B1%D0%BE%D0%BA%D0%BA%D1%83%D0%BD", "https://wikiway.com/south-korea/seul/dostoprimechatelnosti/dvorets-kenbokkun/"],
     "Bukchon": ["https://koreana-tour.ru/bukchon-hanok-village-seoul/"],
     "Insadong": ["https://koreana-tour.ru/insadong-seoul/"],
     "Myeongdong": ["https://koreana-tour.ru/myeongdong-seoul/"],
+    "NANTA Theater": ["https://ru.wikipedia.org/wiki/Nanta"],
     "Bukhansan National Park": ["https://ru.wikipedia.org/wiki/%D0%9F%D1%83%D0%BA%D1%85%D0%B0%D0%BD%D1%81%D0%B0%D0%BD"],
-    "N Seoul Tower": ["https://ru.wikipedia.org/wiki/N_Seoul_Tower"]
+    "COEX Mall": ["https://ru.wikipedia.org/wiki/COEX"],
+    "Hongdae": ["https://koreana-tour.ru/hongdae-seoul/"],
+    "Ikseon-dong": ["https://koreana-tour.ru/ikseondong-seoul/"],
+    "Seongsu": ["https://koreana-tour.ru/seongsu-dong-seoul/"],
+    "N Seoul Tower": ["https://ru.wikipedia.org/wiki/N_Seoul_Tower"],
+    "Cheonggyecheon": ["https://ru.wikipedia.org/wiki/%D0%A7%D1%85%D0%BE%D0%BD%D0%B3%D0%B5%D1%87%D1%85%D0%BE%D0%BD"]
 }
 
 PLACE_DETAILS = {
@@ -86,23 +98,178 @@ FOOD_DETAILS = {
 }
 
 PHOTO_GALLERIES = {
-    'The Yard Hotel Beijing': [
-        'https://pplx-res.cloudinary.com/image/upload/pplx_search_images/dbb0432486dbcf6c12990fe77552547a11fb97a1.jpg',
-        'https://pplx-res.cloudinary.com/image/upload/pplx_search_images/26b97d6307fb0c1c383cbc17b5b2d429d8685e38.jpg',
-        'https://pplx-res.cloudinary.com/image/upload/pplx_search_images/a39bd68e482a04824759681d3ce65b3c8f5ec4d1.jpg'
+    "The Yard Hotel Beijing": [
+        "https://pplx-res.cloudinary.com/image/upload/pplx_search_images/dbb0432486dbcf6c12990fe77552547a11fb97a1.jpg",
+        "https://pplx-res.cloudinary.com/image/upload/pplx_search_images/26b97d6307fb0c1c383cbc17b5b2d429d8685e38.jpg",
+        "https://pplx-res.cloudinary.com/image/upload/pplx_search_images/a39bd68e482a04824759681d3ce65b3c8f5ec4d1.jpg"
     ],
-    'Forbidden City': [
-        'https://pplx-res.cloudinary.com/image/upload/pplx_search_images/1df3a7396c3fc0a838e51204e704f033bd0dfd5d.jpg',
-        'https://pplx-res.cloudinary.com/image/upload/pplx_search_images/aa6fa001623a6439574807fd89dc8066e94f8220.jpg',
-        'https://pplx-res.cloudinary.com/image/upload/pplx_search_images/11db677c789f029deca66b0dd06e139d468dd555.jpg'
+    "Xianyukou Street": [
+        "https://www.tour-beijing.com/photos/600_400/wfj_1.jpg",
+        "https://www.tour-beijing.com/photos/600_400/foot_1.jpg",
+        "https://ruqintravel.com/wp-content/uploads/2024/12/Beijing-Xianyukou-7-7.webp"
     ],
-    'Gyeongbokgung': [
-        'https://pplx-res.cloudinary.com/image/upload/pplx_search_images/73c32cc741f973d2ae0c3be6d6e81f62ac55c730.jpg',
-        'https://pplx-res.cloudinary.com/image/upload/pplx_search_images/005cd5a97cd816d2ee7e0fee2f8ae951c5af0ec8.jpg',
-        'https://pplx-res.cloudinary.com/image/upload/pplx_search_images/0945b3cf42cafe9e0f6960be0e3261279da781b0.jpg'
+    "Forbidden City": [
+        "https://pplx-res.cloudinary.com/image/upload/pplx_search_images/1df3a7396c3fc0a838e51204e704f033bd0dfd5d.jpg",
+        "https://pplx-res.cloudinary.com/image/upload/pplx_search_images/aa6fa001623a6439574807fd89dc8066e94f8220.jpg",
+        "https://pplx-res.cloudinary.com/image/upload/pplx_search_images/11db677c789f029deca66b0dd06e139d468dd555.jpg"
     ],
-    'Bianyifang': [
-        'https://dynamic-media-cdn.tripadvisor.com/media/photo-o/04/94/de/a6/bianyi-fang-qianmen-xian.jpg?w=900&h=500&s=1'
+    "Jingshan Park": [
+        "https://www.encirclephotos.com/wp-content/uploads/China-Beijing-Forbidden-City-Pavilion-Jingshan-Park-600x403.jpg",
+        "https://www.wanderinchina.com/img/forbidden-city-in-beijing-during-golden-hour-img-3_hu_27ef6a51532a717e.webp",
+        "https://media.gettyimages.com/id/1279789685/photo/overview-of-the-northern-entrance-to-the-forbidden-city-from-jingshan-park.jpg?s=612x612&w=0&k=20&c=r8fbBG5E1BYZLcqZRYU5KLy3uUw8c9gOZXrv2DZT9jc="
+    ],
+    "Nanluoguxiang": [
+        "https://live.staticflickr.com/2893/8886236759_536516d364.jpg",
+        "https://ssawgardenhotelbeijing.com/wp-content/uploads/2025/08/Nanluoguxiang-and-Guozijian-Street.jpg",
+        "https://media.gettyimages.com/id/620991634/photo/nanluoguxiang-beijing-china.jpg?s=612x612&w=0&k=20&c=l2bOHcM1ACP969oqtV9fqMxo6_uVMiLQ9RVhZlRuAyw="
+    ],
+    "Shichahai": [
+        "https://media.istockphoto.com/id/1167653954/photo/shichahai-district-in-beijing.jpg?s=612x612&w=0&k=20&c=9xelZcEMkCAwGHsev4V9G7axXkP_YBF0fnHS8XZcuvk=",
+        "https://media.istockphoto.com/id/1167653956/photo/shichahai-district-in-beijing.jpg?s=612x612&w=0&k=20&c=Jg8QRcJcKHcUdlMu9cOpFZty3fh8Wi1IQX7QxkBXttE=",
+        "https://foyochinatrip.com/wp-content/uploads/2026/03/2_%E7%BB%93%E6%9E%9C-3.webp"
+    ],
+    "Mutianyu Great Wall": [
+        "https://routesofchina.com/wp-content/uploads/2025/07/mutianyu-great-wall-section-1024x683.webp",
+        "https://res.klook.com/image/upload/q_85/c_fill,w_1360/v1742874954/x1dmkcbypucvppewyaqu.jpg",
+        "https://gohsomewhere.com/wp-content/uploads/2025/04/mutianyu-3-1024x683.avif"
+    ],
+    "Temple of Heaven": [
+        "https://www.ancient-origins.net/sites/default/files/styles/article_image/public/field/image/Temple-of-Heaven.jpg?itok=Vd3tphER",
+        "https://www.thechinajourney.com/wp-content/uploads/2025/04/Temple-of-Heaven-Beijing-Hall-of-Prayer-for-Good-Harvests-illuminated-at-night-viewed-through-open-red-palace-doors-under-a-deep-blue-sky-1024x683.webp",
+        "https://preview.redd.it/30w748d0tdn31.jpg?width=640&crop=smart&auto=webp&s=12ae4e038589af446b063b10640a285e20cf66d8"
+    ],
+    "798 Art Zone": [
+        "https://urbanchinatravelogue.com/wp-content/uploads/2025/11/beijing-798-art-district-street-candid.webp",
+        "https://museumofwander.com/wp-content/uploads/2023/03/DSC00731.jpg",
+        "https://familyhotelfinder.com/wp-content/uploads/Beijing-798-Art-District1-SH.jpg?w=960&h=540&func=cover"
+    ],
+    "Wangfujing": [
+        "https://ruqintravel.com/wp-content/uploads/2024/12/Beijing-Wangfujing-Shopping-7-7.webp",
+        "https://ruqintravel.com/wp-content/uploads/2024/12/Beijing-Wangfujing-Shopping-5-5.webp",
+        "https://ruqintravel.com/wp-content/uploads/2024/12/Beijing-Wangfujing-Shopping-4-4.webp"
+    ],
+    "Brooklyn Blues Hotel": [
+        "https://i2.wp.com/images.trvl-media.com/lodging/115000000/114420000/114413300/114413204/2c532251.jpg",
+        "https://i2.wp.com/images.trvl-media.com/lodging/115000000/114420000/114413300/114413204/3c6996a5.jpg",
+        "https://i2.wp.com/images.trvl-media.com/lodging/115000000/114420000/114413300/114413204/01f655ed.jpg"
+    ],
+    "Changgyeonggung": [
+        "https://seoulshopper.com/cdn/shop/articles/changgyeonggung-palace-seoul8_181eed9f-d50d-4653-ac93-50723f93f579_2048x2048.jpg?v=1744950942",
+        "https://farm5.staticflickr.com/4717/39673583382_fdec128149_c.jpg",
+        "https://cdn.shopify.com/s/files/1/0609/9376/5551/files/changgyeonggung-palace-seoul-changgyeong-_43.jpg?v=1697613017"
+    ],
+    "Gyeongbokgung": [
+        "https://pplx-res.cloudinary.com/image/upload/pplx_search_images/73c32cc741f973d2ae0c3be6d6e81f62ac55c730.jpg",
+        "https://pplx-res.cloudinary.com/image/upload/pplx_search_images/005cd5a97cd816d2ee7e0fee2f8ae951c5af0ec8.jpg",
+        "https://pplx-res.cloudinary.com/image/upload/pplx_search_images/0945b3cf42cafe9e0f6960be0e3261279da781b0.jpg"
+    ],
+    "Bukchon": [
+        "https://www.busanpedia.com/wp-content/uploads/2024/01/bukchon-hanok-village-alleys-seoul-683x1024.jpg",
+        "https://alovelettertoasia.com/wp-content/uploads/2024/06/bukchon-village-traditional-korean-house-hanok.jpg",
+        "https://architectureontheroad.com/wp-content/uploads/2020/03/Seoul_hanok-villages_architecture-on-the-road-22-of-44.jpg"
+    ],
+    "Insadong": [
+        "https://alovelettertoasia.com/wp-content/uploads/2024/03/insadong-traditional-korean-restaurant-seoul.jpg",
+        "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEiCXtTxWlfNwrJUQ8yCsnfOIkz9IE6rVA5I1-rzcE9P5nKWImbYrBrSpY3Km0QMGdmv4G4P_A7CARz7WaqMr9Zx5OfKwzA0TONAc2Uc57_Y_cNvbQfKJ2cA0AqD1gJPW52tqS8HqziLvhixKBb5c1QC_K0HwniXQDVIoOBzFPbshtDcjU7XZpYtpBXub1o/w400-h400-rw/ChatGPT%20Image%202025%EB%85%84%205%EC%9B%94%2022%EC%9D%BC%20%EC%98%A4%ED%9B%84%2004_41_11.png",
+        "https://travelgasm.com/images/seoul-south-korea/insadong-art-galleries-teahouses-seoul-south-korea.jpg"
+    ],
+    "Myeongdong": [
+        "https://static.wixstatic.com/media/0505b9_a3c6ad84ba5e45a2bb61a53f4f35652b~mv2.jpg/v1/crop/x_0,y_122,w_1254,h_793/fill/w_980,h_620,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/Myeongdong%20Shopping%20Street%20-%20Night%201-2%20landscape%20KTD%202024.jpg",
+        "https://media.gettyimages.com/id/545252231/photo/the-famous-shopping-streets-of-myeong-dong.jpg?s=612x612&w=0&k=20&c=n8ODk8mE93Kmj21UmAZSSzLNMDUDwx936m1IALy1BLg=",
+        "https://www.cktravels.com/wp-content/uploads/2022/12/SEOUL-MYEONGDONG-7.jpg"
+    ],
+    "NANTA Theater": [
+        "https://cdn-imgix.headout.com/media/images/1cb6404db7908dc467fa3e3a63baf20b-23892-SeoulNightGuidedTourwithNantaPerformance--008.jpg?auto=compress,format&w=695.0400000000001&h=434.4&q=96&crop=faces&fit=crop",
+        "https://res.klook.com/images/fl_lossy.progressive,q_65/c_fill,w_1147,h_750/w_70,x_13,y_13,g_south_west,l_Klook_water_br_trans_yhcmh3/activities/fxqu6xr7esm3o9gollso/NantaShowTicketinSeoul.webp",
+        "https://cf.creatrip.com/original/blog/4283/81lhf6qvngb7qbgetpgt5ddz14onmo2s.png"
+    ],
+    "Bukhansan National Park": [
+        "https://ak-d.tripcdn.com/images/1mi4w224x93rnb8is326A_W_640_0_R5_Q80.jpg?proc=source/trip",
+        "https://lifeofdoing.com/wp-content/uploads/2023/08/Bukhansan-National-Park-Temple-MuseumOfWander.jpg",
+        "https://ak-d.tripcdn.com/images/1mi3w224x93rn24gp24E7_W_640_0_R5_Q80.jpg?proc=source/trip"
+    ],
+    "Bibong Peak": [
+        "https://www.ivisitkorea.com/wp-content/uploads/2023/06/Seoul-View-from-Bukhansan-National-Park.jpg",
+        "https://4corners7seas.com/wp-content/uploads/2019/03/bibong-peak-33-1024x638.jpg",
+        "https://4corners7seas.com/wp-content/uploads/2019/03/bibong-peak-40-1024x508.jpg"
+    ],
+    "Jingwansa Temple": [
+        "https://i.pinimg.com/originals/5d/59/18/5d59186e08ccb77fab09b708a89b8f3c.jpg",
+        "https://seoulistic.com/wp-content/uploads/2017/06/jingwansa-temple-bukhansan-buddhist-temple-in-seoul.jpg",
+        "https://thesoulofseoul.net/wp-content/uploads/2013/06/Jingwansa-Temple-A-Beautiful-Temple-To-Find-On-Bukhansan-Mountain-In-Seoul-1-683x1024.jpg"
+    ],
+    "Whoo Spa": [
+        "https://beautipin.com/cdn/shop/articles/ultra-realistic-premium-beauty-editorial-photo-of-a-korean-head-spa-in-seoul-east-asian-woman-receiving-a-waterfall-scalp-rinse-on-a-reclining-spa-bed-clean-modern-salon-interior-soft.png?crop=center&height=873&v=1776419121&width=1248",
+        "https://media-cdn.tripadvisor.com/media/photo-o/12/f8/11/e3/the-spa-grand-hyatt-seoul.jpg",
+        "https://beautipin.com/cdn/shop/articles/00_4ee27908-4c43-4541-bcc8-b95a638d11cc.png?crop=center&height=792&v=1749784158&width=1408"
+    ],
+    "COEX Mall": [
+        "https://a.travel-assets.com/findyours-php/viewfinder/images/res70/343000/343336-Seoul-City.jpg?impolicy=fcrop&w=1040&h=580&q=mediumHigh",
+        "https://thumbs.dreamstime.com/b/coex-starfield-mall-interior-seoul-south-korea-interior-coex-starfield-mall-gangnam-district-seoul-south-195553847.jpg",
+        "https://travel-stained.com/wp-content/uploads/2018/12/1024px-COEX_Mall_Central_Plaza_Atrium_2016.jpg"
+    ],
+    "Starfield Library": [
+        "https://kculture.com/wp-content/uploads/2026/02/2535386.jpg",
+        "https://static.wixstatic.com/media/0505b9_55dfa96c937a47aa90f989aae2182446~mv2.jpg/v1/crop/x_0,y_77,w_1296,h_820/fill/w_980,h_620,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/Stafield%20Library%201%20G8.jpg",
+        "https://i1.wp.com/seoulsearching.net/wp-content/uploads/2023/09/library-005-1024x576.png?ssl=1"
+    ],
+    "Seongsu": [
+        "https://english.seoul.go.kr/wp-content/uploads/2020/01/yeonmujang-gil-1.jpg",
+        "https://english.seoul.go.kr/wp-content/uploads/2022/02/seongsu-dong-cafe-street01.jpg",
+        "https://english.seoul.go.kr/wp-content/uploads/2020/01/yeonmujang-gil-4.jpg"
+    ],
+    "Hongdae": [
+        "https://www.agoda.com/wp-content/uploads/2024/07/Hongdae-Stree-Featured-1244x700.jpg",
+        "https://www.urbantravelblog.com/wp-content/uploads/2016/07/Hongdae-Streets-686x1024.jpg",
+        "https://knowaboutkorea.com/_next/image?url=/images/places/hongdae.jpg&w=3840&q=75"
+    ],
+    "Club Evans": [
+        "https://i.pinimg.com/originals/2d/a2/b0/2da2b0b9c999e439acd8c0968b7f661e.jpg",
+        "https://asomemusic.com/wp-content/uploads/2025/07/jazz-bar-seoul9.jpeg",
+        "https://lh3.googleusercontent.com/p/AF1QipO7WmT3dQVevh61aS3BN0-ZszIW2JQme98UT7Rm=s1600-w640"
+    ],
+    "Ikseon-dong": [
+        "https://alovelettertoasia.com/wp-content/uploads/2024/03/ikseondong-seoul-south-korea-alley.jpg",
+        "https://moving-jack.com/wp-content/uploads/2025/03/ikseon-dong-hanok-street-seoul-south-korea-culture-traditional-outfits-classic-old-asian-style-Copyright-Moving-Jack.com-10-1-682x1024.jpg",
+        "https://moving-jack.com/wp-content/uploads/2025/03/ikseon-dong-hanok-street-seoul-south-korea-culture-traditional-outfits-classic-old-asian-style-Copyright-Moving-Jack.com-5-1.jpg"
+    ],
+    "N Seoul Tower": [
+        "https://images.pexels.com/photos/20839149/pexels-photo-20839149/free-photo-of-hill-with-a-communication-tower-above-the-fog-shrouded-city.jpeg?auto=compress&cs=tinysrgb&dpr=1&w=500",
+        "https://media.gettyimages.com/id/1455247670/photo/namsan-seoul-tower.jpg?s=612x612&w=0&k=20&c=MwF5qJNer4bYCIN7v9ByhSSszdvwZSLWCadLUiJ1KMs=",
+        "https://plus.unsplash.com/premium_photo-1661885493074-e18964497278?fm=jpg&q=60&w=3000&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8NXx8bmFtc2FuJTIwc2VvdWwlMjB0b3dlcnxlbnwwfHwwfHx8MA=="
+    ],
+    "Bianyifang": [
+        "https://dynamic-media-cdn.tripadvisor.com/media/photo-o/04/94/de/a6/bianyi-fang-qianmen-xian.jpg?w=900&h=500&s=1"
+    ],
+    "Siji Minfu": [
+        "https://travelchinawith.me/wp-content/uploads/siji-minfu-dishes.jpeg",
+        "https://travelchinawith.me/wp-content/uploads/siji-minfu-forbidden-city.png",
+        "https://img1.boatcdn.com/user_img/qsjSWuDlTw-2JHGxbnJBzA"
+    ],
+    "Haidilao": [
+        "https://i.pinimg.com/originals/e4/68/d0/e468d0c6766ec315e82a0c157ef426c2.jpg",
+        "https://rs.wescover.com/c_limit,f_auto,q_auto,w_500/v1/wescover-user-uploaded/uhrcmfdgltv8atmumzdn",
+        "https://rs.wescover.com/c_limit,f_auto,q_auto,w_500/v1/wescover-user-uploaded/ygs2d8npwhemrxgk2mew"
+    ],
+    "Myeongdong Kyoja": [
+        "https://ittekuru.com/wp-content/uploads/2017/02/09feb16-001-south-korea-seoul-myeongdong-kyoja-kalguksu-restaurant-noodles-mandu-dumplings.jpg?w=750&h=563",
+        "https://www.cktravels.com/wp-content/uploads/2023/10/kyoja-16.jpg",
+        "https://www.cktravels.com/wp-content/uploads/2023/08/kyoja-2.jpg"
+    ],
+    "La Yeon": [
+        "https://foreignerlivinginkorea.com/wp-content/uploads/2025/05/la-yeon-seoul-the-shilla.jpeg?w=866",
+        "https://www.luxurytravelmagazine.com/files/593/6/76586/The_Shilla_Seoul_La_Yeon_Team_bu.jpg",
+        "https://res.klook.com/images/fl_lossy.progressive,q_65/c_fill,w_1295,h_720/w_80,x_15,y_15,g_south_west,l_Klook_water_br_trans_yhcmh3/activities/lhvhj8e1lrf0auodlclw/ShillaLaYeonRestaurantReservationService.jpg"
+    ],
+    "Baekjeong": [
+        "https://images.ctfassets.net/dsbipkqphva2/6hcNvfIoCNePROXiFpeV8K/0cde90f87e23d02b38291a41814d161a/best-korean-bbq-restaurants-seoul-lead-min.jpg?fm=webp",
+        "https://indulgenteats.com/wp-content/uploads/2023/09/Seoul-Travel-Guide-Chungkiwa-Town-Korean-BBQ-Hongdae-1-min.jpeg",
+        "https://indulgenteats.com/wp-content/uploads/2025/04/Best-Korean-BBQ-in-Seoul-Sancheong-Sutbul-Charcoal-Garden-Euljiro-min.jpg"
+    ],
+    "Oreno Ramen": [
+        "https://ilseonthego.com/wp-content/uploads/2025/09/Oreno-Ramen-Best-Places-Eat-Seoul-12-768x1024.webp",
+        "https://s3-media0.fl.yelpcdn.com/bphoto/ED6GHPOYExgg8czdlhXJpA/l.jpg",
+        "https://preview.redd.it/oreno-ramen-in-hongdae-seoul-v0-jy7cvkpjbbzd1.jpg?width=640&crop=smart&auto=webp&s=4732223fb02d86a7f685a20c7e8fd9aa7ce1fe58"
     ]
 }
 
@@ -112,8 +279,31 @@ def save_notes():
         json.dump(USER_NOTES, f, ensure_ascii=False, indent=2)
 
 
-def today_day(): return '1'
-def tomorrow_day(): return '2'
+def _city_tz(city):
+    from zoneinfo import ZoneInfo
+    return ZoneInfo('Asia/Seoul') if 'Сеул' in city else ZoneInfo('Asia/Shanghai')
+
+
+def today_day():
+    from datetime import datetime
+    from zoneinfo import ZoneInfo
+    for d in ITINERARY['days']:
+        if datetime.now(_city_tz(d['city'])).strftime('%Y-%m-%d') == d['date']:
+            return str(d['day'])
+    today_kst = datetime.now(ZoneInfo('Asia/Seoul')).strftime('%Y-%m-%d')
+    if today_kst < ITINERARY['days'][0]['date']:
+        return str(ITINERARY['days'][0]['day'])
+    return str(ITINERARY['days'][-1]['day'])
+
+
+def tomorrow_day():
+    today = today_day()
+    days = [str(d['day']) for d in ITINERARY['days']]
+    try:
+        idx = days.index(today)
+        return days[idx + 1] if idx < len(days) - 1 else today
+    except ValueError:
+        return today
 def find_day(day_num): return next((d for d in ITINERARY['days'] if str(d['day']) == str(day_num)), None)
 def linkify(text, url): return f'<a href="{url}">{text}</a>' if url else text
 
@@ -184,11 +374,19 @@ def visit_menu(day_obj):
     return InlineKeyboardMarkup(rows)
 
 
+FOOD_KEYWORDS = [
+    'coffee','cafe','tea house',' tea ','ramen','bbq','kyoja','haidilao','bianyifang',
+    'siji','baekjeong','la yeon','oreno','samgyetang','tosokchon','maple tree',
+    'damtak','menya','market','fritz','momos','voyage','metal hands','barista',
+    'da dong','jungsik','mingles','layered','anthracite','onion'
+]
+
+
 def food_places(day_num):
     items=[]
     for idx,p in enumerate(PLACES_BY_DAY.get(str(day_num), [])):
-        cat=(p.get('category') or '').lower(); name=p.get('name_en','')
-        if any(k in cat for k in ['restaurant','cafe','coffee','bakery']) or any(k in name.lower() for k in ['coffee','ramen','bbq','kyoja','haidilao','bianyifang','siji','baekjeong','la yeon','ore']):
+        name=(p.get('name_en','') or '').lower()
+        if any(k in name for k in FOOD_KEYWORDS):
             items.append((idx,p))
     return items
 
