@@ -5,7 +5,15 @@ from datetime import datetime
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update
 from telegram.ext import ApplicationBuilder, CallbackQueryHandler, CommandHandler, ContextTypes
 
-TOKEN = os.getenv('TELEGRAM_BOT_TOKEN', 'PUT_YOUR_TOKEN_HERE')
+def _clean_token(raw: str) -> str:
+    t = (raw or '').strip().strip('"').strip("'")
+    for prefix in ('HTTP API:', 'HTTP API', 'Bot:', 'Token:'):
+        if t.lower().startswith(prefix.lower()):
+            t = t[len(prefix):].strip()
+    return t
+
+
+TOKEN = _clean_token(os.getenv('TELEGRAM_BOT_TOKEN', 'PUT_YOUR_TOKEN_HERE'))
 CSV_PATH = os.path.join(os.path.dirname(__file__), 'places_enriched_v1.csv')
 JSON_PATH = os.path.join(os.path.dirname(__file__), 'itinerary_mvp.json')
 
