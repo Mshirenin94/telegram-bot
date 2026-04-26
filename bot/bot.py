@@ -554,7 +554,10 @@ SYSTEM_PROMPT_BASE = (
 )
 
 
-async def ask_ai(question: str) -> str:
+ASK_HISTORY_MAX = 20  # last N messages kept (user + assistant combined)
+
+
+async def ask_ai(question: str, history: list | None = None) -> tuple[str, list]:
     import asyncio
     client = get_anthropic_client()
     today = today_day()
@@ -564,23 +567,29 @@ async def ask_ai(question: str) -> str:
         + f"\n\nКонтекст поездки:\n{build_trip_context()}"
         + f"\n\nСегодня по часовому поясу путешественника — день {cur_day['day']} ({cur_day['date']}, {cur_day['city']})."
     )
+    history = list(history or [])
+    history.append({"role": "user", "content": question})
+    trimmed = history[-ASK_HISTORY_MAX:]
     def _call():
         msg = client.messages.create(
             model="claude-sonnet-4-6",
             max_tokens=8192,
             system=system,
-            messages=[{"role": "user", "content": question}],
+            messages=trimmed,
         )
         parts = []
         for block in msg.content:
             if getattr(block, 'type', None) == 'text':
                 parts.append(block.text)
         return '\n'.join(parts).strip() or '(пустой ответ от помощника)'
-    return await asyncio.to_thread(_call)
+    answer = await asyncio.to_thread(_call)
+    history.append({"role": "assistant", "content": answer})
+    return answer, history[-ASK_HISTORY_MAX:]
 
 
 def ask_menu():
     return InlineKeyboardMarkup([
+        [InlineKeyboardButton('🧹 Сбросить разговор', callback_data='ask:reset')],
         [InlineKeyboardButton('🏠 Выйти из режима помощника', callback_data='ask:stop')],
     ])
 
@@ -836,6 +845,7 @@ async def show_food_card(chat, day_num, idx):
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     context.user_data['ask_mode'] = False
+    context.user_data['ask_history'] = []
     await update.message.reply_text('Привет! Здесь маршрут по поездке с более детальными местами, едой и фото.', reply_markup=main_menu())
 
 
@@ -887,17 +897,26 @@ async def on_button(update: Update, context: ContextTypes.DEFAULT_TYPE):
             )
     elif data == 'ask:start':
         context.user_data['ask_mode'] = True
+        context.user_data['ask_history'] = []
         await q.edit_message_text(
             '<b>🤖 Режим помощника включён</b>\n\n'
             'Спроси меня что угодно по поездке: как доехать, что сказать таксисту, '
             'перевести меню, что делать если потерялись, объяснить иероглифы и т.п.\n\n'
-            'Просто напиши вопрос следующим сообщением. Я знаю весь твой маршрут.\n\n'
-            '<i>Чтобы выйти — нажми кнопку ниже или /menu.</i>',
+            'Я помню наш разговор и понимаю уточняющие вопросы вроде «а как туда доехать?».\n\n'
+            '<i>Чтобы выйти — нажми кнопку ниже или /menu. Чтобы начать новый разговор — «Сбросить разговор».</i>',
+            parse_mode=ParseMode.HTML,
+            reply_markup=ask_menu()
+        )
+    elif data == 'ask:reset':
+        context.user_data['ask_history'] = []
+        await q.edit_message_text(
+            '<b>🧹 Контекст разговора сброшен.</b>\n\nПомощник забыл предыдущие сообщения. Задавай новый вопрос.',
             parse_mode=ParseMode.HTML,
             reply_markup=ask_menu()
         )
     elif data == 'ask:stop':
         context.user_data['ask_mode'] = False
+        context.user_data['ask_history'] = []
         await q.edit_message_text('Готово, вышли из режима помощника.', reply_markup=main_menu())
     elif data=='today:short': await q.edit_message_text(short_day_text(find_day(today_day())), reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton('📚 Подробная информация', callback_data=f'dayfull:{today_day()}')],[InlineKeyboardButton('🏠 В меню', callback_data='home')]]))
     elif data=='today:full': await q.edit_message_text('Подробная информация на сегодня. Выбери раздел ниже.', reply_markup=detail_menu(today_day()))
@@ -955,7 +974,9 @@ async def parse_add_request(update: Update, context: ContextTypes.DEFAULT_TYPE):
         except Exception:
             pass
         try:
-            answer = await ask_ai(text)
+            history = context.user_data.get('ask_history', [])
+            answer, new_history = await ask_ai(text, history)
+            context.user_data['ask_history'] = new_history
         except Exception as e:
             await update.message.reply_text(
                 f'Помощник временно недоступен: {e}',
