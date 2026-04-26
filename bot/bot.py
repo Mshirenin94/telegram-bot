@@ -5,7 +5,9 @@ import re
 import time
 import urllib.request
 
+import tempfile
 from anthropic import Anthropic
+from openai import OpenAI
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update
 from telegram.constants import ParseMode
 from telegram.ext import ApplicationBuilder, CallbackQueryHandler, CommandHandler, ContextTypes, MessageHandler, filters
@@ -497,6 +499,31 @@ def get_anthropic_client():
     return _ANTHROPIC_CLIENT
 
 
+_OPENAI_CLIENT = None
+
+def get_openai_client():
+    global _OPENAI_CLIENT
+    if _OPENAI_CLIENT is None:
+        _OPENAI_CLIENT = OpenAI(
+            api_key=os.environ.get('AI_INTEGRATIONS_OPENAI_API_KEY'),
+            base_url=os.environ.get('AI_INTEGRATIONS_OPENAI_BASE_URL'),
+        )
+    return _OPENAI_CLIENT
+
+
+async def transcribe_voice(file_path: str) -> str:
+    import asyncio
+    client = get_openai_client()
+    def _call():
+        with open(file_path, 'rb') as f:
+            r = client.audio.transcriptions.create(
+                model='gpt-4o-mini-transcribe',
+                file=f,
+            )
+        return getattr(r, 'text', '') or ''
+    return await asyncio.to_thread(_call)
+
+
 def build_trip_context():
     parts = ['=== Маршрут по дням ===']
     for d in ITINERARY['days']:
@@ -903,6 +930,7 @@ async def on_button(update: Update, context: ContextTypes.DEFAULT_TYPE):
             'Спроси меня что угодно по поездке: как доехать, что сказать таксисту, '
             'перевести меню, что делать если потерялись, объяснить иероглифы и т.п.\n\n'
             'Я помню наш разговор и понимаю уточняющие вопросы вроде «а как туда доехать?».\n\n'
+            '🎤 Можно прислать <b>голосовое сообщение</b> вместо текста — распознаю и отвечу.\n\n'
             '<i>Чтобы выйти — нажми кнопку ниже или /menu. Чтобы начать новый разговор — «Сбросить разговор».</i>',
             parse_mode=ParseMode.HTML,
             reply_markup=ask_menu()
@@ -1015,10 +1043,69 @@ async def parse_add_request(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text(f'Добавил в маршрут на {day_num} мая:\n• {content}')
 
 
+async def on_voice(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    if not context.user_data.get('ask_mode'):
+        await update.message.reply_text(
+            'Голосовые сообщения работают только в режиме помощника. '
+            'Открой главное меню (/menu) → «🤖 Спросить помощника» и пришли голосовое снова.',
+            reply_markup=main_menu()
+        )
+        return
+    voice = update.message.voice or update.message.audio
+    if not voice:
+        return
+    try:
+        await update.message.chat.send_action('typing')
+    except Exception:
+        pass
+    tmp_path = None
+    try:
+        tg_file = await voice.get_file()
+        with tempfile.NamedTemporaryFile(suffix='.ogg', delete=False) as tf:
+            tmp_path = tf.name
+        await tg_file.download_to_drive(tmp_path)
+        try:
+            text = (await transcribe_voice(tmp_path)).strip()
+        except Exception as e:
+            await update.message.reply_text(
+                f'Не получилось распознать голос: {e}',
+                reply_markup=ask_menu()
+            )
+            return
+        if not text:
+            await update.message.reply_text(
+                'Не услышал текста в голосовом. Попробуй записать ещё раз.',
+                reply_markup=ask_menu()
+            )
+            return
+        await update.message.reply_text(f'🎤 <i>Распознал:</i> {text}', parse_mode=ParseMode.HTML)
+        try:
+            history = context.user_data.get('ask_history', [])
+            answer, new_history = await ask_ai(text, history)
+            context.user_data['ask_history'] = new_history
+        except Exception as e:
+            await update.message.reply_text(
+                f'Помощник временно недоступен: {e}',
+                reply_markup=ask_menu()
+            )
+            return
+        chunks = chunk_text(answer)
+        for i, ch in enumerate(chunks):
+            await update.message.reply_text(
+                ch,
+                reply_markup=ask_menu() if i == len(chunks) - 1 else None
+            )
+    finally:
+        if tmp_path and os.path.exists(tmp_path):
+            try: os.remove(tmp_path)
+            except Exception: pass
+
+
 if __name__ == '__main__':
     app=ApplicationBuilder().token(TOKEN).build()
     app.add_handler(CommandHandler('start', start))
     app.add_handler(CommandHandler('menu', start))
     app.add_handler(CallbackQueryHandler(on_button))
     app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, parse_add_request))
+    app.add_handler(MessageHandler(filters.VOICE | filters.AUDIO, on_voice))
     app.run_polling()
