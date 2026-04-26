@@ -2,6 +2,7 @@ import csv
 import json
 import os
 import re
+import time
 import urllib.request
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update
 from telegram.constants import ParseMode
@@ -61,6 +62,16 @@ CURRENCY_ALIASES = [
     (re.compile(r'(?i)\bдоллар\w*|\busd\b|\$'), 'USD'),
     (re.compile(r'(?i)\bрубл\w*|\bруб\w*|\bр\b'), 'RUB'),
 ]
+
+EXPENSE_CATEGORIES = ['Еда', 'Транспорт', 'Билеты', 'Шопинг', 'Прочее']
+CATEGORY_EMOJI = {'Еда': '🍜', 'Транспорт': '🚇', 'Билеты': '🎟', 'Шопинг': '🛍', 'Прочее': '✨'}
+CATEGORY_HINTS = {
+    'Еда': 'Примеры:\n• 200 юаней ужин в Da Dong\n• 35000 вон самгёпсаль\n• 8 долларов кофе',
+    'Транспорт': 'Примеры:\n• 30 юаней такси DiDi\n• 4500 вон метро\n• 9000 вон AREX до Сеула',
+    'Билеты': 'Примеры:\n• 60 юаней Запретный город\n• 15000 вон Changgyeonggung\n• 70000 вон NANTA',
+    'Шопинг': 'Примеры:\n• 800 юаней сувениры\n• 45000 вон косметика\n• 1200 рублей пряжа',
+    'Прочее': 'Примеры:\n• 200 юаней чаевые\n• 5000 вон камера хранения\n• 1500 рублей разное',
+}
 
 MONTH_RU = {'05-01':'1 мая','05-02':'2 мая','05-03':'3 мая','05-04':'4 мая','05-05':'5 мая','05-06':'6 мая','05-07':'7 мая','05-08':'8 мая','05-09':'9 мая','05-10':'10 мая','05-11':'11 мая','05-12':'12 мая'}
 
@@ -347,12 +358,32 @@ def normalize_city(city):
     return 'Сеул' if 'Сеул' in city else 'Пекин'
 
 
-def add_expense(day_num, amount, currency, comment):
+def add_expense(day_num, amount, currency, comment, category='Прочее'):
     rub = round(amount * EXCHANGE_TO_RUB.get(currency, 1.0), 2)
-    item = {'amount': amount, 'currency': currency, 'rub': rub, 'comment': comment}
+    item = {
+        'amount': amount, 'currency': currency, 'rub': rub,
+        'comment': comment, 'category': category, 'ts': time.time(),
+    }
     EXPENSES.setdefault(str(day_num), []).append(item)
     save_expenses()
-    return rub
+    return rub, item
+
+
+def undo_last_expense():
+    best = None
+    for day, items in EXPENSES.items():
+        for i, it in enumerate(items):
+            ts = it.get('ts', 0)
+            if best is None or ts > best[0]:
+                best = (ts, day, i)
+    if best is None:
+        return None
+    _, day, idx = best
+    removed = EXPENSES[day].pop(idx)
+    if not EXPENSES[day]:
+        del EXPENSES[day]
+    save_expenses()
+    return day, removed
 
 
 def expenses_summary_text():
@@ -377,7 +408,9 @@ def expenses_summary_text():
             for it in items:
                 sym = CURRENCY_SYMBOLS.get(it['currency'], it['currency'])
                 tail = f' — {it["comment"]}' if it.get('comment') else ''
-                lines.append(f'• {it["amount"]:g} {sym}{tail}  ({it["rub"]:.0f} ₽)')
+                cat = it.get('category', 'Прочее')
+                cat_label = f"{CATEGORY_EMOJI.get(cat, '')} {cat}"
+                lines.append(f'• {cat_label}: {it["amount"]:g} {sym}{tail}  ({it["rub"]:.0f} ₽)')
             city_total += day_sum
             grand += day_sum
         prev_city = cur_city
@@ -491,8 +524,15 @@ def expenses_menu():
     return InlineKeyboardMarkup([
         [InlineKeyboardButton('➕ Добавить расход', callback_data='exp:add')],
         [InlineKeyboardButton('📊 Сколько потратили', callback_data='exp:show')],
+        [InlineKeyboardButton('↩️ Отменить последний расход', callback_data='exp:undo')],
         [InlineKeyboardButton('🏠 В меню', callback_data='home')],
     ])
+
+
+def add_expense_menu():
+    rows = [[InlineKeyboardButton(f'{CATEGORY_EMOJI[c]} {c}', callback_data=f'exp:cat:{c}')] for c in EXPENSE_CATEGORIES]
+    rows.append([InlineKeyboardButton('⬅️ Назад', callback_data='expenses_menu')])
+    return InlineKeyboardMarkup(rows)
 
 
 def info_choice_menu(prefix):
@@ -688,14 +728,41 @@ async def on_button(update: Update, context: ContextTypes.DEFAULT_TYPE):
     elif data=='expenses_menu': await q.edit_message_text('Раздел расходов:', reply_markup=expenses_menu())
     elif data=='exp:add':
         await q.edit_message_text(
-            'Напиши расход в формате «<сумма> <валюта> <комментарий>».\n\n'
-            'Примеры:\n• 200 юаней ужин\n• 5000 вон такси\n• 20 долларов кофе\n• 1500 рублей сувениры\n\n'
-            f'Курс зафиксирован {EXCHANGE_LOCKED_AT}: 1 ¥ = {EXCHANGE_TO_RUB["CNY"]} ₽, 1 ₩ = {EXCHANGE_TO_RUB["KRW"]} ₽, 1 $ = {EXCHANGE_TO_RUB["USD"]} ₽\n\n'
-            'Расход уйдёт в текущий день поездки.',
-            reply_markup=expenses_menu()
+            'Выбери категорию расхода:',
+            reply_markup=add_expense_menu()
         )
+    elif data.startswith('exp:cat:'):
+        cat = data.split(':', 2)[2]
+        if cat not in EXPENSE_CATEGORIES:
+            cat = 'Прочее'
+        context.user_data['expense_category'] = cat
+        hint = CATEGORY_HINTS.get(cat, '')
+        text = (
+            f'<b>Категория: {CATEGORY_EMOJI.get(cat, "")} {cat}</b>\n\n'
+            'Напиши сумму и валюту следующим сообщением, например:\n'
+            f'{hint}\n\n'
+            'Понимаемые валюты: юани/¥, воны/₩, доллары/$, рубли.\n'
+            f'Курс зафиксирован {EXCHANGE_LOCKED_AT}: 1 ¥ = {EXCHANGE_TO_RUB["CNY"]} ₽, 1 ₩ = {EXCHANGE_TO_RUB["KRW"]} ₽, 1 $ = {EXCHANGE_TO_RUB["USD"]} ₽\n\n'
+            'Расход уйдёт в текущий день поездки и в эту категорию.'
+        )
+        await q.edit_message_text(text, parse_mode=ParseMode.HTML, reply_markup=add_expense_menu())
     elif data=='exp:show':
         await q.edit_message_text(expenses_summary_text(), parse_mode=ParseMode.HTML, reply_markup=expenses_menu())
+    elif data=='exp:undo':
+        result = undo_last_expense()
+        if result is None:
+            await q.edit_message_text('Нечего отменять — расходов пока нет.', reply_markup=expenses_menu())
+        else:
+            day, it = result
+            sym = CURRENCY_SYMBOLS.get(it.get('currency'), it.get('currency', ''))
+            cat = it.get('category', 'Прочее')
+            cat_label = f"{CATEGORY_EMOJI.get(cat, '')} {cat}"
+            cmt = f' — {it.get("comment")}' if it.get('comment') else ''
+            await q.edit_message_text(
+                f'Отменён последний расход (день {day}, {cat_label}):\n'
+                f'{it.get("amount"):g} {sym}{cmt}  ({it.get("rub"):.0f} ₽)',
+                reply_markup=expenses_menu()
+            )
     elif data=='today:short': await q.edit_message_text(short_day_text(find_day(today_day())), reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton('📚 Подробная информация', callback_data=f'dayfull:{today_day()}')],[InlineKeyboardButton('🏠 В меню', callback_data='home')]]))
     elif data=='today:full': await q.edit_message_text('Подробная информация на сегодня. Выбери раздел ниже.', reply_markup=detail_menu(today_day()))
     elif data=='tomorrow:short': await q.edit_message_text(short_day_text(find_day(tomorrow_day())), reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton('📚 Подробная информация', callback_data=f'dayfull:{tomorrow_day()}')],[InlineKeyboardButton('🏠 В меню', callback_data='home')]]))
@@ -749,12 +816,14 @@ async def parse_add_request(update: Update, context: ContextTypes.DEFAULT_TYPE):
     parsed = parse_expense(text)
     if parsed:
         amount, cur, comment = parsed
+        category = context.user_data.get('expense_category', 'Прочее')
         day_num = today_day()
-        rub = add_expense(day_num, amount, cur, comment)
+        rub, _ = add_expense(day_num, amount, cur, comment, category)
         sym = CURRENCY_SYMBOLS.get(cur, cur)
         cmt = f' — {comment}' if comment else ''
+        cat_label = f"{CATEGORY_EMOJI.get(category, '')} {category}"
         await update.message.reply_text(
-            f'Добавил расход в день {day_num}: {amount:g} {sym}{cmt}\n= {rub:.0f} ₽',
+            f'Добавил расход в день {day_num} ({cat_label}): {amount:g} {sym}{cmt}\n= {rub:.0f} ₽',
             reply_markup=expenses_menu()
         )
         return
