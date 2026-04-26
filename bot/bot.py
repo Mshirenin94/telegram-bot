@@ -4,6 +4,8 @@ import os
 import re
 import time
 import urllib.request
+
+from anthropic import Anthropic
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update
 from telegram.constants import ParseMode
 from telegram.ext import ApplicationBuilder, CallbackQueryHandler, CommandHandler, ContextTypes, MessageHandler, filters
@@ -483,6 +485,74 @@ async def weather_text(day_obj):
     return '\n'.join(blocks)
 
 
+_ANTHROPIC_CLIENT = None
+
+def get_anthropic_client():
+    global _ANTHROPIC_CLIENT
+    if _ANTHROPIC_CLIENT is None:
+        _ANTHROPIC_CLIENT = Anthropic(
+            api_key=os.environ.get('AI_INTEGRATIONS_ANTHROPIC_API_KEY'),
+            base_url=os.environ.get('AI_INTEGRATIONS_ANTHROPIC_BASE_URL'),
+        )
+    return _ANTHROPIC_CLIENT
+
+
+def build_trip_context():
+    lines = ['Поездка: Пекин (1-5 мая) → Сеул (5-12 мая 2026).', 'Маршрут по дням:']
+    for d in ITINERARY['days']:
+        title = d.get('title', '')
+        city = d.get('city', '')
+        lines.append(f"День {d['day']} ({d['date']}, {city}): {title}")
+    return '\n'.join(lines)
+
+
+SYSTEM_PROMPT_BASE = (
+    "Ты — личный помощник в путешествии по Пекину и Сеулу. "
+    "Отвечай кратко, по делу, на русском языке (если не просят иначе). "
+    "Если спрашивают, как что-то сказать на китайском или корейском — давай иероглифы/хангыль, "
+    "транскрипцию (пиньинь / романизация) и перевод. "
+    "Если спрашивают как доехать — давай конкретный маршрут (метро/такси), примерное время и стоимость в местной валюте. "
+    "Если путешественник потерялся — попроси описать что видно вокруг (вывески, ориентиры) и подскажи ближайшее метро. "
+    "Не выдумывай факты, которых не знаешь — лучше честно скажи 'не уверен, проверь на месте'. "
+    "Длинные ответы делай по пунктам."
+)
+
+
+async def ask_ai(question: str) -> str:
+    import asyncio
+    client = get_anthropic_client()
+    today = today_day()
+    cur_day = next((d for d in ITINERARY['days'] if str(d['day']) == today), ITINERARY['days'][0])
+    system = (
+        SYSTEM_PROMPT_BASE
+        + f"\n\nКонтекст поездки:\n{build_trip_context()}"
+        + f"\n\nСегодня по часовому поясу путешественника — день {cur_day['day']} ({cur_day['date']}, {cur_day['city']})."
+    )
+    def _call():
+        msg = client.messages.create(
+            model="claude-sonnet-4-6",
+            max_tokens=8192,
+            system=system,
+            messages=[{"role": "user", "content": question}],
+        )
+        parts = []
+        for block in msg.content:
+            if getattr(block, 'type', None) == 'text':
+                parts.append(block.text)
+        return '\n'.join(parts).strip() or '(пустой ответ от помощника)'
+    return await asyncio.to_thread(_call)
+
+
+def ask_menu():
+    return InlineKeyboardMarkup([
+        [InlineKeyboardButton('🏠 Выйти из режима помощника', callback_data='ask:stop')],
+    ])
+
+
+def chunk_text(text, n=3800):
+    return [text[i:i+n] for i in range(0, len(text), n)]
+
+
 def _city_tz(city):
     from zoneinfo import ZoneInfo
     return ZoneInfo('Asia/Seoul') if 'Сеул' in city else ZoneInfo('Asia/Shanghai')
@@ -531,6 +601,7 @@ def main_menu():
         [InlineKeyboardButton('🧭 Весь маршрут', callback_data='whole_route')],
         [InlineKeyboardButton('📝 Добавить в маршрут', callback_data='add_help')],
         [InlineKeyboardButton('💰 Расходы', callback_data='expenses_menu')],
+        [InlineKeyboardButton('🤖 Спросить помощника', callback_data='ask:start')],
     ])
 
 
@@ -728,6 +799,7 @@ async def show_food_card(chat, day_num, idx):
 
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    context.user_data['ask_mode'] = False
     await update.message.reply_text('Привет! Здесь маршрут по поездке с более детальными местами, едой и фото.', reply_markup=main_menu())
 
 
@@ -777,6 +849,20 @@ async def on_button(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 f'{it.get("amount"):g} {sym}{cmt}  ({it.get("rub"):.0f} ₽)',
                 reply_markup=expenses_menu()
             )
+    elif data == 'ask:start':
+        context.user_data['ask_mode'] = True
+        await q.edit_message_text(
+            '<b>🤖 Режим помощника включён</b>\n\n'
+            'Спроси меня что угодно по поездке: как доехать, что сказать таксисту, '
+            'перевести меню, что делать если потерялись, объяснить иероглифы и т.п.\n\n'
+            'Просто напиши вопрос следующим сообщением. Я знаю весь твой маршрут.\n\n'
+            '<i>Чтобы выйти — нажми кнопку ниже или /menu.</i>',
+            parse_mode=ParseMode.HTML,
+            reply_markup=ask_menu()
+        )
+    elif data == 'ask:stop':
+        context.user_data['ask_mode'] = False
+        await q.edit_message_text('Готово, вышли из режима помощника.', reply_markup=main_menu())
     elif data=='today:short': await q.edit_message_text(short_day_text(find_day(today_day())), reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton('📚 Подробная информация', callback_data=f'dayfull:{today_day()}')],[InlineKeyboardButton('🏠 В меню', callback_data='home')]]))
     elif data=='today:full': await q.edit_message_text('Подробная информация на сегодня. Выбери раздел ниже.', reply_markup=detail_menu(today_day()))
     elif data=='tomorrow:short': await q.edit_message_text(short_day_text(find_day(tomorrow_day())), reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton('📚 Подробная информация', callback_data=f'dayfull:{tomorrow_day()}')],[InlineKeyboardButton('🏠 В меню', callback_data='home')]]))
@@ -827,6 +913,26 @@ async def on_button(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 async def parse_add_request(update: Update, context: ContextTypes.DEFAULT_TYPE):
     text=(update.message.text or '').strip()
+    if context.user_data.get('ask_mode'):
+        try:
+            await update.message.chat.send_action('typing')
+        except Exception:
+            pass
+        try:
+            answer = await ask_ai(text)
+        except Exception as e:
+            await update.message.reply_text(
+                f'Помощник временно недоступен: {e}',
+                reply_markup=ask_menu()
+            )
+            return
+        chunks = chunk_text(answer)
+        for i, ch in enumerate(chunks):
+            await update.message.reply_text(
+                ch,
+                reply_markup=ask_menu() if i == len(chunks) - 1 else None
+            )
+        return
     parsed = parse_expense(text)
     if parsed:
         amount, cur, comment = parsed
@@ -855,6 +961,7 @@ async def parse_add_request(update: Update, context: ContextTypes.DEFAULT_TYPE):
 if __name__ == '__main__':
     app=ApplicationBuilder().token(TOKEN).build()
     app.add_handler(CommandHandler('start', start))
+    app.add_handler(CommandHandler('menu', start))
     app.add_handler(CallbackQueryHandler(on_button))
     app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, parse_add_request))
     app.run_polling()
