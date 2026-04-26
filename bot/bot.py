@@ -419,6 +419,20 @@ def expenses_summary_text():
     lines.append('')
     if grand > 0:
         lines.append(f'<b>Всего за поездку: {grand:.0f} ₽</b>')
+        cat_totals = {c: 0.0 for c in EXPENSE_CATEGORIES}
+        for items in EXPENSES.values():
+            for it in items:
+                c = it.get('category', 'Прочее')
+                if c not in cat_totals:
+                    cat_totals[c] = 0.0
+                cat_totals[c] += it.get('rub', 0.0)
+        lines.append('')
+        lines.append('<b>По категориям:</b>')
+        for c in EXPENSE_CATEGORIES:
+            total = cat_totals.get(c, 0.0)
+            if total > 0:
+                share = total / grand * 100
+                lines.append(f'• {CATEGORY_EMOJI.get(c, "")} {c}: {total:.0f} ₽ ({share:.0f}%)')
     else:
         lines.append('Пока ничего не добавлено. Открой «Добавить расход» и напиши, например: 200 юаней ужин')
     return '\n'.join(lines)
